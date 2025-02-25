@@ -17,8 +17,8 @@ if File.exist?('/etc/redborder/sensor-installed.txt')
     action [:disable, :stop]
   end
 end
-puts node["redborder"]["segments"]
-sleep 10 
+puts node['redborder']['segments']
+sleep 10
 # Configure and enable chef-client
 dnf_package 'redborder-chef-client' do
   flush_cache [:before]

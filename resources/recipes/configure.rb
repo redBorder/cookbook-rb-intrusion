@@ -225,7 +225,7 @@ end
 # end
 
 if node['redborder']['chef_enabled'].nil? || node['redborder']['chef_enabled']
-  
+
   groups_in_use = get_groups_in_use_info
   snort3_config 'Configure Snort' do
     sensor_id sensor_id
@@ -288,7 +288,6 @@ if node['redborder']['chef_enabled'].nil? || node['redborder']['chef_enabled']
     end
   end
 end
-
 
 # template "/etc/rb_snmp_pass.yml" do
 #   source "rb_snmp_pass.yml.erb"

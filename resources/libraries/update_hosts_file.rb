@@ -15,7 +15,7 @@ module RbIps
       end
       hosts_hash
     end
-    
+
     def update_hosts_file
       manager_registration_ip = node['redborder']['manager_registration_ip'] if node['redborder'] && node['redborder']['manager_registration_ip']
 

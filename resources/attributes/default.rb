@@ -46,7 +46,7 @@ default['redborder']['memory_services'] = {}
 default['redborder']['memory_services']['chef-client'] = { 'count': 10, 'memory': 0 }
 default['redborder']['memory_services']['snmp'] = { 'count': 5, 'memory': 0, 'max_limit': 10000 }
 default['redborder']['memory_services']['redborder-monitor'] = { 'count': 5, 'memory': 0, 'max_limit': 20000 }
-#default['redborder']['memory_services']['snortd'] = { 'count': 10, 'memory': 0 }
+# default['redborder']['memory_services']['snortd'] = { 'count': 10, 'memory': 0 }
 
 # exclude mem services, setting memory to 0 for each.
 default['redborder']['excluded_memory_services'] = ['chef-client']
@@ -65,6 +65,6 @@ default['redborder']['systemdservices']['chef-client'] = ['chef-client']
 default['redborder']['systemdservices']['redborder-monitor'] = ['redborder-monitor']
 default['redborder']['systemdservices']['snmp'] = ['snmpd']
 default['redborder']['systemdservices']['rsyslog'] = ['rsyslog']
-#default['redborder']['systemdservices']['snortd'] = ['snortd']
+# default['redborder']['systemdservices']['snortd'] = ['snortd']
 default['redborder']['systemdservices']['redborder-exporter'] = ['rb-exporter']
 default['redborder']['systemdservices']['chrony'] = ['chronyd']
