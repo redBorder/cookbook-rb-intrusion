@@ -39,8 +39,3 @@ ruby_block 'update_hosts_file_if_needed' do
   end
   action :run
 end
-
-# Run the health check at the end of the chef run
-at_exit do
-  Chef.run_context.resource_collection.find('ruby_block[check_barnyard2_health]').run_action(:run)
-end
