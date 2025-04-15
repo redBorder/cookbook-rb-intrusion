@@ -368,12 +368,14 @@ end
 #   action([:start])
 # end
 
-# service "rb-monitor" do
-#   service_name "rb-monitor"
-#   ignore_failure true
-#   supports :status => true, :reload => true, :restart => true
-#   sensor_id>0 ? action([:start, :enable]) : action([:stop, :disable])
-# end
+rbmonitor_config 'Configure redborder-monitor' do
+  name node['hostname']
+  if ips_services['redborder-monitor'] && sensor_id > 0
+    action :add
+  else
+    action :remove
+  end
+end
 
 dnf_package 'bp_watchdog' do
   action :upgrade
