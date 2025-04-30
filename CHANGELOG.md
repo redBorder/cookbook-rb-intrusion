@@ -1,6 +1,11 @@
 cookbook-rb-intrusion CHANGELOG
 ===============
 
+## 1.1.2
+
+  - jnavarrorb
+    - [84e3329] Fix empty string
+
 ## 1.1.1
 
   - nilsver
