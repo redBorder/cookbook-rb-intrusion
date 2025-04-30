@@ -14,7 +14,11 @@
 <%####################################################################### %>
 {
   "run_list": [
+<% if node["redborder"]["cloud"] %>
+    "role[intrusioncp-sensor]",
+<% else %>
     "role[intrusion-sensor]",
+<% end %>
     "role[<%= @sensor_id>0 ? "rBsensor-#{@sensor_id}" : "sensor" %>]"
   ]
 }
