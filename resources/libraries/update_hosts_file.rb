@@ -1,6 +1,6 @@
 module RbIps
   module Helpers
-    def get_external_databag_services
+    def external_databag_services
       Chef::DataBag.load('rBglobal').keys.grep(/^ipvirtual-external-/).map { |bag| bag.sub('ipvirtual-external-', '') }
     end
 
@@ -21,7 +21,7 @@ module RbIps
       query = Chef::Search::Query.new
       nodes = []
       query.search(:node, 'is_manager:true') do |node|
-        nodes << node.name + '.node'
+        nodes << "#{node.name}.node"
       end
       nodes
     end
@@ -31,7 +31,7 @@ module RbIps
       return unless manager_registration_ip # Can be also virtual ip
 
       running_services = node['redborder']['systemdservices'].values.flatten if node['redborder']['systemdservices']
-      databags = get_external_databag_services
+      databags = external_databag_services
 
       # Hash where services (from databag) are grouped by ip
       grouped_virtual_ips = Hash.new { |hash, key| hash[key] = [] }
@@ -88,6 +88,53 @@ module RbIps
         hosts_entries << format_entry unless services.empty?
       end
       hosts_entries
+    end
+
+    def gather_hosts_info
+      manager_registration_ip = node['redborder']['manager_registration_ip'] if node['redborder'] && node['redborder']['manager_registration_ip']
+      return {} unless manager_registration_ip # Can be also virtual ip
+
+      running_services = node.dig('redborder', 'systemdservices')
+                        &.values
+                        &.flatten
+                        &.map { |s| "#{s}.service" } || []
+
+      hosts_info = {}
+      hosts_info['127.0.0.1'] = {}
+      hosts_info['127.0.0.1']['services'] = running_services
+      hosts_info[manager_registration_ip] = {}
+      hosts_info[manager_registration_ip]['node_names'] = manager_node_names
+      hosts_info[manager_registration_ip]['services'] = []
+
+
+
+      # Hash where services (from databag) are grouped by ip
+      grouped_virtual_ips = Hash.new { |hash, key| hash[key] = [] }
+      external_databag_services.each do |bag|
+        virtual_dg = data_bag_item('rBglobal', "ipvirtual-external-#{bag}")
+        ip = virtual_dg['ip']
+        ip = ip && !ip.empty? ? ip : manager_registration_ip
+        grouped_virtual_ips[ip] << bag.gsub('ipvirtual-external-', '')
+      end
+
+      grouped_virtual_ips.each do |ip, services|
+        services.uniq! # Avoids having duplicate services in the list
+        services.each do |service|
+          # Add running services to localhost
+          if ip == '127.0.0.1' && running_services.include?(service)
+            next
+          elsif ip && !node['redborder']['cloud']
+            hosts_info[ip] = {} unless hosts_info[ip] # Create if necessary
+            hosts_info[ip]['services'] = [] unless hosts_info[ip]['services'] # Create if necessary
+            hosts_info[ip]['services'] << "#{service}.service"
+            hosts_info[ip]['services'] << "#{service}.#{node['redborder']['cdomain']}"
+          else # default ip
+            hosts_info[manager_registration_ip]['services'] << "#{service}.service"
+            hosts_info[manager_registration_ip]['services'] << "#{service}.#{node['redborder']['cdomain']}"
+          end
+        end
+      end
+      hosts_info
     end
   end
 end
