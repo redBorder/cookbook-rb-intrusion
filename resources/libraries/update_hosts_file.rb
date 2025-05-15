@@ -93,7 +93,7 @@ module RbIps
     def gather_hosts_info
       manager_registration_ip = node['redborder']['manager_registration_ip'] if node['redborder'] && node['redborder']['manager_registration_ip']
       return {} unless manager_registration_ip # Can be also virtual ip
-      
+
       running_services = node.dig('redborder', 'systemdservices')
                         &.values
                         &.flatten
@@ -105,7 +105,7 @@ module RbIps
       hosts_info[manager_registration_ip] = {}
       intrusion_node_name = "#{node.name}.node"
       hosts_info[manager_registration_ip]['node_names'] = manager_node_names << intrusion_node_name
-      cdomain = dig('redborder', 'cdomain')
+      cdomain = node.dig('redborder', 'cdomain')
       hosts_info[manager_registration_ip]['cdomain'] = cdomain if cdomain
 
       # This services are critical for the use of chef to rewrite the hosts file
