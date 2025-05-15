@@ -105,9 +105,18 @@ module RbIps
       hosts_info[manager_registration_ip] = {}
       intrusion_node_name = "#{node.name}.node"
       hosts_info[manager_registration_ip]['node_names'] = manager_node_names << intrusion_node_name
+      hosts_info[manager_registration_ip]['cdomain'] = node['cdomain'] ? node.cdomain : nil # redborder.cluster
+
       # This services are critical for the use of chef to rewrite the hosts file
-      implicit_services = %w[erchef.service erchef.redborder.cluster s3.service]
-      hosts_info[manager_registration_ip]['services'] = implicit_services
+      implicit_services = ['erchef.service', 's3.service']
+      implicit_services << "erchef.#{node.cdomain}" if node.cdomain
+
+      other_services = if node['cdomain']
+                         %w[data http2k].map { |s| "#{s}.#{node['cdomain']}" }
+                       else
+                         []
+                       end
+      hosts_info[manager_registration_ip]['services'] = implicit_services + other_services
 
       # Hash where services (from databag) are grouped by ip
       grouped_virtual_ips = Hash.new { |hash, key| hash[key] = [] }
