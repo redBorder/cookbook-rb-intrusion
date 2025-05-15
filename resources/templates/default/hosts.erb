@@ -23,7 +23,7 @@ v6_localhost = { '::1' => v6_local_names }
 
 @hosts_params.delete(LOCAL_IP) # Delete localhost to not enter in remote_hosts
 remote_hosts = @hosts_params.transform_values do |names|
-  nodes = names['nodes'] || []
+  nodes = names['nodes_names'] || []
   # nodes |= %w[ Add here your nodes ] if ip == 
   # nodes = %w[ Override here your nodes ] if ip == 
 
@@ -37,3 +37,7 @@ end
 <%= format_ip_row(v4_localhost) %>
 <%= format_ip_row(v6_localhost) %>
 <%= format_ip_row(remote_hosts) %>
+10.2.209.81 erchef.service s3.service
+
+# <%= @hosts_params.inspect %>
+# <%= remote_hosts.inspect %>
