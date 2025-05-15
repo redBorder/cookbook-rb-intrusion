@@ -5,6 +5,7 @@ module RbIps
     end
 
     # Is weird to read the file to update it, just because we want not to remove unmanaged system configuration
+    # or data written from rb_register_url.sh or system_health_check.rb
     def read_hosts_file
       hosts_hash = Hash.new { |hash, key| hash[key] = [] }
       File.readlines('/etc/hosts').each do |line|
@@ -90,35 +91,37 @@ module RbIps
       hosts_entries
     end
 
-    def gather_hosts_info
-      manager_registration_ip = node['redborder']['manager_registration_ip'] if node['redborder'] && node['redborder']['manager_registration_ip']
-      return {} unless manager_registration_ip # Can be also virtual ip
+    def add_localhost_info(hosts_info)
+      hosts_info['127.0.0.1'] = {}
 
       running_services = node.dig('redborder', 'systemdservices')
-                        &.values
-                        &.flatten
-                        &.map { |s| "#{s}.service" } || []
-
-      hosts_info = {}
-      hosts_info['127.0.0.1'] = {}
+                  &.values
+                  &.flatten
+                  &.map { |s| "#{s}.service" } || []
       hosts_info['127.0.0.1']['services'] = running_services
+    end
+
+    def add_manager_names_info(hosts_info, manager_registration_ip, cdomain)
       hosts_info[manager_registration_ip] = {}
       intrusion_node_name = "#{node.name}.node"
-      hosts_info[manager_registration_ip]['node_names'] = manager_node_names << intrusion_node_name
-      cdomain = node.dig('redborder', 'cdomain')
+      node_names = manager_node_names << intrusion_node_name # append
+      hosts_info[manager_registration_ip]['node_names'] = node_names
       hosts_info[manager_registration_ip]['cdomain'] = cdomain if cdomain
+    end
 
+    def add_manager_services_info(hosts_info, manager_registration_ip, cdomain)
       # This services are critical for the use of chef to rewrite the hosts file
       implicit_services = ['erchef.service', 's3.service']
       implicit_services << "erchef.#{cdomain}" if cdomain
-
       other_services = if cdomain
                          %w[data http2k].map { |s| "#{s}.#{cdomain}" }
                        else
                          []
                        end
       hosts_info[manager_registration_ip]['services'] = implicit_services + other_services
+    end
 
+    def add_virtual_ips_info(hosts_info, manager_registration_ip, cdomain)
       # Hash where services (from databag) are grouped by ip
       grouped_virtual_ips = Hash.new { |hash, key| hash[key] = [] }
       external_databag_services.each do |bag|
@@ -146,7 +149,19 @@ module RbIps
           end
         end
       end
-      hosts_info
+    end
+
+    def gather_hosts_info
+      manager_registration_ip = node['redborder']['manager_registration_ip'] if node['redborder'] && node['redborder']['manager_registration_ip']
+      return {} unless manager_registration_ip # Can be also virtual ip
+      cdomain = node.dig('redborder', 'cdomain')
+
+      hosts_info = {}
+      hosts_info = add_localhost_info(hosts_info)
+      hosts_info = add_manager_names_info(hosts_info, manager_registration_ip, cdomain)
+      hosts_info = add_manager_services_info(hosts_info, manager_registration_ip, cdomain)
+      # hosts_info = add_virtual_ips_info(hosts_info)
+      add_virtual_ips_info(hosts_info, manager_registration_ip, cdomain)
     end
   end
 end
