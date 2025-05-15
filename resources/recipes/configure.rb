@@ -58,6 +58,7 @@ if sensor_id > 0
   node.run_list(['role[intrusion-sensor]', "role[rBsensor-#{sensor_id}]", 'role[intrusion-sensor]'])
 end
 
+hosts_params = gather_hosts_info
 template '/etc/hosts' do
   source 'hosts.erb'
   cookbook 'rb-intrusion'
@@ -65,7 +66,7 @@ template '/etc/hosts' do
   group 'root'
   mode '644'
   retries 2
-  variables(hosts_params: gather_hosts_info)
+  variables(hosts_params: hosts_params)
 end
 
 # Motd
