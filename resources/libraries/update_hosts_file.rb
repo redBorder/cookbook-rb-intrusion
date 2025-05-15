@@ -99,6 +99,7 @@ module RbIps
                   &.flatten
                   &.map { |s| "#{s}.service" } || []
       hosts_info['127.0.0.1']['services'] = running_services
+      hosts_info
     end
 
     def add_manager_names_info(hosts_info, manager_registration_ip, cdomain)
@@ -107,6 +108,7 @@ module RbIps
       node_names = manager_node_names << intrusion_node_name # append
       hosts_info[manager_registration_ip]['node_names'] = node_names
       hosts_info[manager_registration_ip]['cdomain'] = cdomain if cdomain
+      hosts_info
     end
 
     def add_manager_services_info(hosts_info, manager_registration_ip, cdomain)
@@ -119,6 +121,7 @@ module RbIps
                          []
                        end
       hosts_info[manager_registration_ip]['services'] = implicit_services + other_services
+      hosts_info
     end
 
     def add_virtual_ips_info(hosts_info, manager_registration_ip, cdomain)
@@ -149,11 +152,12 @@ module RbIps
           end
         end
       end
+      hosts_info
     end
 
     def gather_hosts_info
-      manager_registration_ip = node['redborder']['manager_registration_ip'] if node['redborder'] && node['redborder']['manager_registration_ip']
-      return {} unless manager_registration_ip # Can be also virtual ip
+      manager_registration_ip = node.dig('redborder', 'manager_registration_ip')
+      return {} unless manager_registration_ip
       cdomain = node.dig('redborder', 'cdomain')
 
       hosts_info = {}
