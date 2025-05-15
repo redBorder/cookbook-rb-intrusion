@@ -106,8 +106,6 @@ module RbIps
       hosts_info[manager_registration_ip]['node_names'] = manager_node_names
       hosts_info[manager_registration_ip]['services'] = []
 
-
-
       # Hash where services (from databag) are grouped by ip
       grouped_virtual_ips = Hash.new { |hash, key| hash[key] = [] }
       external_databag_services.each do |bag|
