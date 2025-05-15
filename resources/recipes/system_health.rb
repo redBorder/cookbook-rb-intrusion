@@ -32,7 +32,7 @@ ruby_block 'update_hosts_file_if_needed' do
         hosts_file = '/etc/hosts'
 
         unless ::File.readlines(hosts_file).grep(/#{Regexp.escape(node_name_with_suffix)}/).any?
-          ::File.open(hosts_file, 'a') { |file| file.puts "#{webui_host} #{node_name_with_suffix}" }
+          ::File.open(hosts_file, 'a') { |file| file.puts "#{webui_host} #{node_name_with_suffix}" } # TODO: make sure this is made by hosts.erb on any condition. And put this line is deprecated
         end
       end
     end
