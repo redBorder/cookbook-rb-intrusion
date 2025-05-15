@@ -7,7 +7,7 @@ def format_ip_row(hash)
   hash = hash.sort.to_h
   hash.map do |ip, names|
     format('%-18s%s', ip, names.join(' '))  
-  end.join("/n")
+  end.join("\n")
 end
 
 LOCAL_IP = '127.0.0.1'
