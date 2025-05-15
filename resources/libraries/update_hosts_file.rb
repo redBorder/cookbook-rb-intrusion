@@ -139,7 +139,7 @@ module RbIps
             hosts_info[ip] = {} unless hosts_info[ip] # Create if necessary
             hosts_info[ip]['services'] = [] unless hosts_info[ip]['services'] # Create if necessary
             hosts_info[ip]['services'] << "#{service}.service"
-            hosts_info[ip]['services'] << "#{service}.#{node['redborder']['cdomain']}"
+            hosts_info[ip]['services'] << "#{service}.#{cdomain}"
           else # default ip
             hosts_info[manager_registration_ip]['services'] << "#{service}.service"
             hosts_info[manager_registration_ip]['services'] << "#{service}.#{node['redborder']['cdomain']}"
