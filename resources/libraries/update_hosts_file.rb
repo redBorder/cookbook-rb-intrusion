@@ -115,13 +115,14 @@ module RbIps
         grouped_virtual_ips[ip] << bag.gsub('ipvirtual-external-', '')
       end
 
+      is_mode_manager = !node['redborder']['cloud']
       grouped_virtual_ips.each do |ip, services|
         services.uniq! # Avoids having duplicate services in the list
         services.each do |service|
           # Add running services to localhost
-          if ip == '127.0.0.1' && running_services.include?(service)
+          if ip == '127.0.0.1'
             next
-          elsif ip && !node['redborder']['cloud']
+          elsif ip && is_mode_manager
             hosts_info[ip] = {} unless hosts_info[ip] # Create if necessary
             hosts_info[ip]['services'] = [] unless hosts_info[ip]['services'] # Create if necessary
             hosts_info[ip]['services'] << "#{service}.service"
