@@ -104,7 +104,8 @@ module RbIps
       hosts_info['127.0.0.1']['services'] = running_services
       hosts_info[manager_registration_ip] = {}
       hosts_info[manager_registration_ip]['node_names'] = manager_node_names
-      hosts_info[manager_registration_ip]['services'] = []
+      implicit_services = %w[erchef.service s3.service] # This services are critical for the use of chef to rewrite the hosts file
+      hosts_info[manager_registration_ip]['services'] = implicit_services
 
       # Hash where services (from databag) are grouped by ip
       grouped_virtual_ips = Hash.new { |hash, key| hash[key] = [] }
