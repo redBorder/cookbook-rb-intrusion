@@ -2,7 +2,12 @@
 # We need this for the kafka problem
 # Is replaying with manager.domain and
 # The ips need to be able to resolv this
-# TODO: rework this part
+
+# This check can be deprecated since we started to control /etc/hosts with
+# Chef, hosts.erb template and update_hosts_file.rb library
+# Activate if you need to check something different rather than
+# /etc/hosts
+
 ruby_block 'update_hosts_file_if_needed' do
   block do
     def managerToIp(str)
@@ -32,9 +37,9 @@ ruby_block 'update_hosts_file_if_needed' do
         hosts_file = '/etc/hosts'
 
         unless ::File.readlines(hosts_file).grep(/#{Regexp.escape(node_name_with_suffix)}/).any?
-          ::File.open(hosts_file, 'a') { |file| file.puts "#{webui_host} #{node_name_with_suffix}" } # TODO: make sure this is made by hosts.erb on any condition. And put this line is deprecated
-        end
-      end
+          ::File.open(hosts_file, 'a') { |file| file.puts "#{webui_host} #{node_name_with_suffix}" }
+        end # THE ELSE should always happen, since we are controlling the file through template /etc/hosts
+      end # else IPS was registered using Virtual IP
     end
   end
   action :run
