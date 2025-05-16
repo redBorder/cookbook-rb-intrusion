@@ -1,6 +1,13 @@
 cookbook-rb-intrusion CHANGELOG
 ===============
 
+## 1.2.0
+
+  - David Vanhoucke
+    - [2fe01d4] remove sleep and puts command
+  - Miguel Alvarez
+    - [0561c7c] Add intrusioncp sensor type
+
 ## 1.1.2
 
   - jnavarrorb
