@@ -65,7 +65,7 @@ module RbIps
           # Add running services to localhost
           if new_ip == '127.0.0.1' && running_services.include?(new_service)
             hosts_hash['127.0.0.1'] << "#{new_service}.service"
-            next #service
+            next
           end
 
           # If there is a virtual ip and IPS is manager mode
