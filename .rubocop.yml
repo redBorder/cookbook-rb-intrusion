@@ -1,0 +1,5 @@
+# .rubocop.yml
+
+# Deshabilita la regla Chef/Deprecations/ResourceWithoutUnifiedTrue
+Chef/Deprecations/ResourceWithoutUnifiedTrue:
+  Enabled: false
