@@ -89,7 +89,6 @@ module RbIps
       hosts_hash[manager_registration_ip] = (hosts_hash[manager_registration_ip] || []) + manager_node_names
 
       # Prepare the lines for the hosts file
-      # TODO: include in host entries manager-.node when cluster is implemented
       hosts_entries = []
       hosts_hash.each do |ip, services|
         format_entry = format('%-18s%s', ip, services.join(' '))
