@@ -7,6 +7,7 @@ module RbIps
     # Is weird to read the file to update it, just because we want not to remove unmanaged system configuration
     # or data written from rb_register_url.sh or system_health_check.rb
     def read_hosts_file
+      # This function is deprecated
       hosts_hash = Hash.new { |hash, key| hash[key] = [] }
       File.readlines('/etc/hosts').each do |line|
         next if line.strip.empty? || line.start_with?('#')
@@ -28,6 +29,7 @@ module RbIps
     end
 
     def update_hosts_file
+      # This function is deprecated
       manager_registration_ip = node['redborder']['manager_registration_ip'] if node['redborder'] && node['redborder']['manager_registration_ip']
       return unless manager_registration_ip # Can be also virtual ip
 
@@ -58,7 +60,7 @@ module RbIps
         new_services.each do |new_service|
           # Avoids having duplicate services in the list
           service_key = new_service.split('.').first
-          hosts_hash.each do |_ip, services|
+          hosts_hash.each_value do |services|
             services.delete_if { |service| service.split('.').first == service_key }
           end
 
@@ -95,9 +97,9 @@ module RbIps
       hosts_info['127.0.0.1'] = {}
 
       running_services = node.dig('redborder', 'systemdservices')
-                  &.values
-                  &.flatten
-                  &.map { |s| "#{s}.service" } || []
+                             &.values
+                             &.flatten
+                             &.map { |s| "#{s}.service" } || []
       hosts_info['127.0.0.1']['services'] = running_services
       hosts_info
     end
@@ -115,6 +117,7 @@ module RbIps
       # This services are critical for the use of chef to rewrite the hosts file
       implicit_services = ['erchef.service', 's3.service']
       implicit_services << "erchef.#{cdomain}" if cdomain
+      # Services not contained in node information
       other_services = if cdomain
                          %w[data http2k].map { |s| "#{s}.#{cdomain}" }
                        else

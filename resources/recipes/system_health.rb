@@ -21,6 +21,7 @@ ruby_block 'update_hosts_file_if_needed' do
         ip = `dig +short #{str}`.strip
         return ip unless ip.empty?
       end
+      nil
     end
 
     unless node['redborder']['cloud']
