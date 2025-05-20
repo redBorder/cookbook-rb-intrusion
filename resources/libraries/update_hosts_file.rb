@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 module RbIps
   module Helpers
     def external_databag_services
@@ -11,6 +13,7 @@ module RbIps
       hosts_hash = Hash.new { |hash, key| hash[key] = [] }
       File.readlines('/etc/hosts').each do |line|
         next if line.strip.empty? || line.start_with?('#')
+
         values = line.split(/\s+/)
         ip = values.shift
         services = values
@@ -30,7 +33,9 @@ module RbIps
 
     def update_hosts_file
       # This function is deprecated
-      manager_registration_ip = node['redborder']['manager_registration_ip'] if node['redborder'] && node['redborder']['manager_registration_ip']
+      if node['redborder'] && node['redborder']['manager_registration_ip']
+        manager_registration_ip = node['redborder']['manager_registration_ip']
+      end
       return unless manager_registration_ip # Can be also virtual ip
 
       running_services = node['redborder']['systemdservices'].values.flatten if node['redborder']['systemdservices']
@@ -161,6 +166,7 @@ module RbIps
     def gather_hosts_info
       manager_registration_ip = node.dig('redborder', 'manager_registration_ip')
       return {} unless manager_registration_ip
+
       cdomain = node.dig('redborder', 'cdomain')
 
       hosts_info = {}
