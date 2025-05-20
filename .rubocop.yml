@@ -3,3 +3,6 @@
 # Deshabilita la regla Chef/Deprecations/ResourceWithoutUnifiedTrue
 Chef/Deprecations/ResourceWithoutUnifiedTrue:
   Enabled: false
+
+Style/PercentLiteralDelimiters:
+  Enabled: false
