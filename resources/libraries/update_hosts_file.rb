@@ -1,29 +1,45 @@
+# frozen_string_literal: true
+
 module RbIps
   module Helpers
-    def get_external_databag_services
+    def external_databag_services
       Chef::DataBag.load('rBglobal').keys.grep(/^ipvirtual-external-/).map { |bag| bag.sub('ipvirtual-external-', '') }
     end
 
+    # Is weird to read the file to update it, just because we want not to remove unmanaged system configuration
+    # or data written from rb_register_url.sh or system_health_check.rb
     def read_hosts_file
+      # This function is deprecated
       hosts_hash = Hash.new { |hash, key| hash[key] = [] }
       File.readlines('/etc/hosts').each do |line|
         next if line.strip.empty? || line.start_with?('#')
+
         values = line.split(/\s+/)
         ip = values.shift
         services = values
         hosts_hash[ip].concat(services).uniq!
       end
-      hosts_hash
+      hosts_hash # IP => [services and nodes]
+    end
+
+    def manager_node_names
+      query = Chef::Search::Query.new
+      nodes = []
+      query.search(:node, 'is_manager:true') do |node|
+        nodes << "#{node.name}.node"
+      end
+      nodes
     end
 
     def update_hosts_file
-      manager_registration_ip = node['redborder']['manager_registration_ip'] if node['redborder'] && node['redborder']['manager_registration_ip']
-
-      return unless manager_registration_ip
+      # This function is deprecated
+      if node['redborder'] && node['redborder']['manager_registration_ip']
+        manager_registration_ip = node['redborder']['manager_registration_ip']
+      end
+      return unless manager_registration_ip # Can be also virtual ip
 
       running_services = node['redborder']['systemdservices'].values.flatten if node['redborder']['systemdservices']
-      databags = get_external_databag_services
-      hosts_hash = read_hosts_file
+      databags = external_databag_services
 
       # Hash where services (from databag) are grouped by ip
       grouped_virtual_ips = Hash.new { |hash, key| hash[key] = [] }
@@ -39,15 +55,17 @@ module RbIps
       end
 
       # Add running services to localhost
+      # Why only localhost is being grouped?
       grouped_virtual_ips['127.0.0.1'] ||= []
       running_services.each { |serv| grouped_virtual_ips['127.0.0.1'] << serv }
 
       # Group services
+      hosts_hash = read_hosts_file
       grouped_virtual_ips.each do |new_ip, new_services|
         new_services.each do |new_service|
           # Avoids having duplicate services in the list
           service_key = new_service.split('.').first
-          hosts_hash.each do |_ip, services|
+          hosts_hash.each_value do |services|
             services.delete_if { |service| service.split('.').first == service_key }
           end
 
@@ -57,7 +75,7 @@ module RbIps
             next
           end
 
-          # If there is a virtual ip and ips is manager mode
+          # If there is a virtual ip and IPS is manager mode
           if new_ip && !node['redborder']['cloud']
             hosts_hash[new_ip] << "#{new_service}.service"
             hosts_hash[new_ip] << "#{new_service}.#{node['redborder']['cdomain']}"
@@ -68,6 +86,8 @@ module RbIps
         end
       end
 
+      hosts_hash[manager_registration_ip] = (hosts_hash[manager_registration_ip] || []) + manager_node_names
+
       # Prepare the lines for the hosts file
       hosts_entries = []
       hosts_hash.each do |ip, services|
@@ -75,6 +95,85 @@ module RbIps
         hosts_entries << format_entry unless services.empty?
       end
       hosts_entries
+    end
+
+    def add_localhost_info(hosts_info)
+      hosts_info['127.0.0.1'] = {}
+
+      running_services = node.dig('redborder', 'systemdservices')
+                             &.values
+                             &.flatten
+                             &.map { |s| "#{s}.service" } || []
+      hosts_info['127.0.0.1']['services'] = running_services
+      hosts_info
+    end
+
+    def add_manager_names_info(hosts_info, manager_registration_ip, cdomain)
+      hosts_info[manager_registration_ip] = {}
+      intrusion_node_name = "#{node.name}.node"
+      node_names = manager_node_names << intrusion_node_name # append
+      hosts_info[manager_registration_ip]['node_names'] = node_names
+      hosts_info[manager_registration_ip]['cdomain'] = cdomain if cdomain
+      hosts_info
+    end
+
+    def add_manager_services_info(hosts_info, manager_registration_ip, cdomain)
+      # This services are critical for the use of chef to rewrite the hosts file
+      implicit_services = ['erchef.service', 's3.service']
+      implicit_services << "erchef.#{cdomain}" if cdomain
+      # Services not contained in node information
+      other_services = if cdomain
+                         %w[data http2k].map { |s| "#{s}.#{cdomain}" }
+                       else
+                         []
+                       end
+      hosts_info[manager_registration_ip]['services'] = implicit_services + other_services
+      hosts_info
+    end
+
+    def add_virtual_ips_info(hosts_info, manager_registration_ip, cdomain)
+      # Hash where services (from databag) are grouped by ip
+      grouped_virtual_ips = Hash.new { |hash, key| hash[key] = [] }
+      external_databag_services.each do |bag|
+        virtual_dg = data_bag_item('rBglobal', "ipvirtual-external-#{bag}")
+        ip = virtual_dg['ip']
+        ip = ip && !ip.empty? ? ip : manager_registration_ip
+        grouped_virtual_ips[ip] << bag.gsub('ipvirtual-external-', '')
+      end
+
+      is_mode_manager = !node['redborder']['cloud']
+      grouped_virtual_ips.each do |ip, services|
+        services.uniq! # Avoids having duplicate services in the list
+        services.each do |service|
+          # Add running services to localhost
+          if ip == '127.0.0.1'
+            next
+          elsif ip && is_mode_manager
+            hosts_info[ip] = {} unless hosts_info[ip] # Create if necessary
+            hosts_info[ip]['services'] = [] unless hosts_info[ip]['services'] # Create if necessary
+            hosts_info[ip]['services'] << "#{service}.service"
+            hosts_info[ip]['services'] << "#{service}.#{cdomain}"
+          else # default ip
+            hosts_info[manager_registration_ip]['services'] << "#{service}.service"
+            hosts_info[manager_registration_ip]['services'] << "#{service}.#{node['redborder']['cdomain']}"
+          end
+        end
+      end
+      hosts_info
+    end
+
+    def gather_hosts_info
+      manager_registration_ip = node.dig('redborder', 'manager_registration_ip')
+      return {} unless manager_registration_ip
+
+      cdomain = node.dig('redborder', 'cdomain')
+
+      hosts_info = {}
+      hosts_info = add_localhost_info(hosts_info)
+      hosts_info = add_manager_names_info(hosts_info, manager_registration_ip, cdomain)
+      hosts_info = add_manager_services_info(hosts_info, manager_registration_ip, cdomain)
+      # hosts_info = add_virtual_ips_info(hosts_info)
+      add_virtual_ips_info(hosts_info, manager_registration_ip, cdomain)
     end
   end
 end
