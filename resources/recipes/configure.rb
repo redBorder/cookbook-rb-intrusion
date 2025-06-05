@@ -370,7 +370,6 @@ if node['redborder']['ipsrules'] && node['redborder']['cloud']
   end
 end
 
-
 # service "iptables" do
 #   service_name "iptables"
 #   ignore_failure true
