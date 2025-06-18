@@ -201,6 +201,19 @@ template '/etc/sensor_id' do
   variables(variable: sensor_id)
 end
 
+geoip_config 'Configure GeoIP' do
+  user_id node['redborder']['geoip_user']
+  license_key node['redborder']['geoip_key']
+  action :add
+end
+
+cookbook_file '/usr/share/GeoIP/country.dat' do
+  source 'country.dat'
+  owner 'root'
+  group 'root'
+  mode '0644'
+end
+
 snmp_config 'Configure snmp' do
   hostname node['hostname']
   cdomain node['redborder']['cdomain']
