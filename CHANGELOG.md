@@ -1,6 +1,11 @@
 cookbook-rb-intrusion CHANGELOG
 ===============
 
+## 1.2.1
+
+  - Miguel Alvarez
+    - [1f8b2b4] Feature/apply update job intrusion (#10)
+
 ## 1.2.0
 
   - David Vanhoucke
