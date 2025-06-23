@@ -1,6 +1,12 @@
 cookbook-rb-intrusion CHANGELOG
 ===============
 
+## 1.2.2
+
+  - Miguel Alvarez
+    - [a6e48fe] Raw view for intrusion sensor (#11)
+    - [1f8b2b4] Feature/apply update job intrusion (#10)
+
 ## 1.2.1
 
   - Miguel Alvarez
