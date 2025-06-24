@@ -1,6 +1,23 @@
 cookbook-rb-intrusion CHANGELOG
 ===============
 
+## 1.2.3
+
+  - ptorresred
+    - [797d2fa] Merge pull request #14 from redBorder/bugfix/21834_wrong_line_in_etc_hosts_with_domainname
+  - david vhk
+    - [b1459bf] Merge branch 'master' into development
+  - David Vanhoucke
+    - [88b602c] bump version
+    - [2994686] bump version
+  - Miguel Álvarez
+    - [a6e48fe] Raw view for intrusion sensor (#11)
+    - [1f8b2b4] Feature/apply update job intrusion (#10)
+  - nilsver
+    - [aa8ddcb] Merge branch 'bugfix/21834_wrong_line_in_etc_hosts_with_domainname' of github.com:redBorder/cookbook-rb-intrusion into bugfix/21834_wrong_line_in_etc_hosts_with_domainname
+    - [25ed3a5] fix registering with domainname
+    - [e518387] fix registering with domainname
+
 ## 1.2.2
 
   - Miguel Alvarez
