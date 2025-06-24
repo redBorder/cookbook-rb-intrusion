@@ -1,11 +1,6 @@
 cookbook-rb-intrusion CHANGELOG
 ===============
 
-## 1.2.3
-
-  - nilsver
-    - [25ed3a5] fix registering with domainname
-
 ## 1.2.2
 
   - Miguel Alvarez
