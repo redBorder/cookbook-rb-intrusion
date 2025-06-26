@@ -1,6 +1,11 @@
 cookbook-rb-intrusion CHANGELOG
 ===============
 
+## 1.2.4
+
+  - Miguel Alvarez
+    - [70ff4ce] redBorder intrusion GeoIP Reputation (#12)
+
 ## 1.2.3
 
   - nilsver
