@@ -1,6 +1,11 @@
 cookbook-rb-intrusion CHANGELOG
 ===============
 
+## 1.2.5
+
+  - nilsver
+    - [df1596e] add check every 24h to clean metadata
+
 ## 1.2.4
 
   - Miguel Alvarez
