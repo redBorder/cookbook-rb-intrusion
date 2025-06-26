@@ -1,6 +1,11 @@
 cookbook-rb-intrusion CHANGELOG
 ===============
 
+## 1.2.6
+
+  - Rafael Gomez
+    - [2b05efc] remove outdated metadata cleanup task and flush_cache from chef-client upgrade
+
 ## 1.2.5
 
   - nilsver
