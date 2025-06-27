@@ -1,6 +1,11 @@
 cookbook-rb-intrusion CHANGELOG
 ===============
 
+## 1.2.7
+
+  - nilsver
+    - [f7702f6] remove flush cache
+
 ## 1.2.6
 
   - Rafael Gomez
