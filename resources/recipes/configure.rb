@@ -200,6 +200,19 @@ template '/etc/sensor_id' do
   variables(variable: sensor_id)
 end
 
+geoip_config 'Configure GeoIP' do
+  user_id node['redborder']['geoip_user']
+  license_key node['redborder']['geoip_key']
+  action :add
+end
+
+cookbook_file '/usr/share/GeoIP/country.dat' do
+  source 'country.dat'
+  owner 'root'
+  group 'root'
+  mode '0644'
+end
+
 snmp_config 'Configure snmp' do
   hostname node['hostname']
   cdomain node['redborder']['cdomain']
@@ -303,7 +316,6 @@ end
 
 dnf_package 'watchdog' do
   action :upgrade
-  flush_cache [:before]
 end
 
 template '/etc/watchdog.conf' do
@@ -332,21 +344,30 @@ end
 
 if node['redborder']['ipsrules'] && node['redborder']['cloud']
   node['redborder']['ipsrules'].to_hash.each do |groupid, _ipsrules|
-    next unless node['redborder']['ipsrules'][groupid]['command'] && !node['redborder']['ipsrules'][groupid]['command'].empty?
+    if node['redborder']['ipsrules'][groupid]['command'].nil? || node['redborder']['ipsrules'][groupid]['command'].empty?
+      next
+    end
+    if node['redborder']['ipsrules'][groupid]['timestamp'].to_i <= 0
+      next
+    end
+    if node['redborder']['ipsrules'][groupid]['timestamp_last'].to_i >= node['redborder']['ipsrules'][groupid]['timestamp'].to_i
+      next
+    end
+    if node['redborder']['ipsrules'][groupid]['uuid'].nil? || node['redborder']['ipsrules'][groupid]['uuid'].empty?
+      next
+    end
 
-    next unless node['redborder']['ipsrules'][groupid]['timestamp'].to_i > 0
+    original_command = node['redborder']['ipsrules'][groupid]['command'].to_s
+    command = original_command.gsub(/^sudo(\s+-E)?\s+/, '').gsub(/;/, ' ')
 
-    next unless node['redborder']['ipsrules'][groupid]['timestamp_last'].to_i < node['redborder']['ipsrules'][groupid]['timestamp'].to_i
-
-    next unless node['redborder']['ipsrules'][groupid]['uuid'] && !node['redborder']['ipsrules'][groupid]['uuid'].empty?
-
-    command = node['redborder']['ipsrules'][groupid]['command'].to_s.gsub(/^sudo /, '').gsub(/;/, ' ')
-
-    next unless command.start_with?('/bin/env BOOTUP=none /usr/lib/redborder/bin/rb_get_sensor_rules.sh ')
+    unless command.start_with?('/bin/env BOOTUP=none /usr/lib/redborder/bin/rb_get_sensor_rules.sh ')
+      next
+    end
 
     execute "download_rules_#{groupid}" do
       command "/usr/lib/rvm/bin/rvm ruby-2.7.5@global do /usr/lib/redborder/scripts/rb_get_sensor_rules_cloud.rb -c '#{command}' -u #{node['redborder']['ipsrules'][groupid]['uuid'].to_s}"
       ignore_failure true
+      live_stream true
       action :run
       notifies :create, "ruby_block[update_rule_timestamp_#{groupid}]", :immediately
     end
@@ -378,7 +399,6 @@ end
 
 dnf_package 'bp_watchdog' do
   action :upgrade
-  flush_cache [:before]
 end
 
 service 'bp_watchdog' do

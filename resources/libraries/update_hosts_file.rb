@@ -31,12 +31,16 @@ module RbIps
       nodes
     end
 
+    # This function can be deprecated since we started to control /etc/hosts with gather_hosts_info()
     def update_hosts_file
-      # This function is deprecated
-      if node['redborder'] && node['redborder']['manager_registration_ip']
-        manager_registration_ip = node['redborder']['manager_registration_ip']
+      unless node.dig('redborder', 'resolve_host')
+        domain_name = node.dig('redborder', 'manager_registration_ip')
+        return if domain_name.nil?
+        resolved_ip = manager_to_ip(domain_name)
+        return if resolved_ip.nil?
+        node.normal['redborder']['resolve_host'] = resolved_ip
       end
-      return unless manager_registration_ip # Can be also virtual ip
+      manager_registration_ip = node.dig('redborder', 'resolve_host')
 
       running_services = node['redborder']['systemdservices'].values.flatten if node['redborder']['systemdservices']
       databags = external_databag_services
@@ -163,7 +167,15 @@ module RbIps
     end
 
     def gather_hosts_info
-      manager_registration_ip = node.dig('redborder', 'manager_registration_ip')
+      unless node.dig('redborder', 'resolve_host')
+        domain_name = node.dig('redborder', 'manager_registration_ip')
+        return {} if domain_name.nil?
+        resolved_ip = manager_to_ip(domain_name)
+        return {} if resolved_ip.nil?
+        node.normal['redborder']['resolve_host'] = resolved_ip
+      end
+      manager_registration_ip = node.dig('redborder', 'resolve_host')
+
       return {} unless manager_registration_ip
 
       cdomain = node.dig('redborder', 'cdomain')

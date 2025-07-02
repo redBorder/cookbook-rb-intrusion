@@ -1,6 +1,43 @@
 cookbook-rb-intrusion CHANGELOG
 ===============
 
+## 1.2.7
+
+  - nilsver
+    - [f7702f6] remove flush cache
+
+## 1.2.6
+
+  - Rafael Gomez
+    - [2b05efc] remove outdated metadata cleanup task and flush_cache from chef-client upgrade
+
+## 1.2.5
+
+  - nilsver
+    - [df1596e] add check every 24h to clean metadata
+
+## 1.2.4
+
+  - Miguel Alvarez
+    - [70ff4ce] redBorder intrusion GeoIP Reputation (#12)
+
+## 1.2.3
+
+  - nilsver
+    - [25ed3a5] fix registering with domainname
+    - [e518387] fix registering with domainname
+
+## 1.2.2
+
+  - Miguel Alvarez
+    - [a6e48fe] Raw view for intrusion sensor (#11)
+    - [1f8b2b4] Feature/apply update job intrusion (#10)
+
+## 1.2.1
+
+  - Miguel Alvarez
+    - [1f8b2b4] Feature/apply update job intrusion (#10)
+
 ## 1.2.0
 
   - David Vanhoucke
