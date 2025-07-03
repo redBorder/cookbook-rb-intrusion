@@ -337,11 +337,14 @@ template '/etc/watchdog.d/020-check-snort.sh' do
   notifies :restart, 'service[watchdog]', :delayed
 end
 
-# [ "/etc/init.d/snortd", "/etc/init.d/barnyard2", "/etc/init.d/bp_watchdog", "/etc/snort", "/etc/pf_ring", "/etc/kdump.conf", "/etc/rb-monitor", "/etc/init.d/rb-monitor", "/etc/rdi", "/etc/watchdog.d" ].each do |l|
-#   link l do
-#     to "/opt/rb/#{l}"
-#   end if !File.exists?"/opt/rb/#{l}"
-# end
+template '/etc/watchdog.d/030-check-cpu.sh' do
+  source 'watchdog_030-check-cpu.sh.erb'
+  owner 'root'
+  group 'root'
+  mode '0755'
+  retries 2
+  notifies :restart, 'service[watchdog]', :delayed
+end
 
 if node['redborder']['ipsrules'] && node['redborder']['cloud']
   node['redborder']['ipsrules'].to_hash.each do |groupid, _ipsrules|
