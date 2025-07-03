@@ -1,0 +1,108 @@
+#!/bin/bash
+<%####################################################################### %>
+<%# Copyright (c) 2025 ENEO Tecnología S.L. %>
+<%# This file is part of redBorder. %>
+<%# redBorder is free software: you can redistribute it and/or modify %>
+<%# it under the terms of the GNU Affero General Public License License as published by %>
+<%# the Free Software Foundation, either version 3 of the License, or %>
+<%# (at your option) any later version. %>
+<%# redBorder is distributed in the hope that it will be useful, %>
+<%# but WITHOUT ANY WARRANTY; without even the implied warranty of %>
+<%# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the %>
+<%# GNU Affero General Public License License for more details. %>
+<%# You should have received a copy of the GNU Affero General Public License License %>
+<%# along with redBorder. If not, see <http://www.gnu.org/licenses/>. %>
+<%####################################################################### %>
+
+WATCHDOG_NAME="watchdog_cpu_check"
+MIN_RUNTIME_SECONDS=300
+CPU_USAGE_THRESHOLD=100
+
+f_log() {
+    logger -t "$WATCHDOG_NAME" "$1"
+}
+
+all_running_long_enough() {
+    mapfile -t units < <(
+        systemctl list-units --type=service --state=running 'snort3@*' \
+            --no-legend --no-pager | awk '{print $1}'
+    )
+    [[ ${#units[@]} -gt 0 ]] || return 1
+
+    for unit in "${units[@]}"; do
+        start_usec=$(systemctl show "$unit" -p ActiveEnterTimestampMonotonic --value)
+        up_sec=$(cut -d' ' -f1 /proc/uptime | cut -d'.' -f1)
+        runtime=$(( (up_sec*1000000 - start_usec) / 1000000 ))
+        (( runtime < MIN_RUNTIME_SECONDS )) && return 1
+    done
+
+    return 0
+}
+
+if ! all_running_long_enough; then
+    exit 0
+fi
+
+get_cpu_usage() {
+    local prev_idle=$1 prev_total=$2 idle=$3 total=$4
+    local idle_diff=$(( idle - prev_idle ))
+    local total_diff=$(( total - prev_total ))
+    (( total_diff == 0 )) && echo 0 && return
+    echo $(( (1000 * (total_diff - idle_diff) / total_diff + 5) / 10 ))
+}
+
+get_process_cores() {
+    local pid="$1"
+    if [[ -f "/proc/$pid/status" ]]; then
+        grep Cpus_allowed_list /proc/"$pid"/status | awk '{print $2}'
+    fi
+}
+
+declare -A prev_idle prev_total
+core=0
+while read -r line; do
+    [[ $line =~ ^cpu[0-9]+ ]] || continue
+    read -r _ user nice system idle iowait irq softsteal steal guest guest_nice <<<"$line"
+    prev_idle[$core]=$(( idle + iowait ))
+    prev_total[$core]=$(( user + nice + system + idle + iowait + irq + softsteal + steal + guest + guest_nice ))
+    ((core++))
+done < /proc/stat
+
+sleep 1
+
+core=0
+while read -r line; do
+    [[ $line =~ ^cpu[0-9]+ ]] || continue
+    read -r _ user nice system idle iowait irq softsteal steal guest guest_nice <<<"$line"
+    idle_all=$(( idle + iowait ))
+    total=$(( user + nice + system + idle + iowait + irq + softsteal + steal + guest + guest_nice ))
+
+    usage_value=$(get_cpu_usage \
+        "${prev_idle[$core]}" "${prev_total[$core]}" \
+        "$idle_all" "$total"
+    )
+
+    if (( usage_value >= CPU_USAGE_THRESHOLD )); then
+
+        mapfile -t units < <(
+            systemctl list-units --type=service --state=running 'snort3@*' \
+                --no-legend --no-pager | awk '{print $1}'
+        )
+
+        for unit in "${units[@]}"; do
+            pid=$(systemctl show "$unit" -p MainPID --value)
+            [[ -z $pid || $pid -eq 0 ]] && continue
+
+            cores_allowed=$(get_process_cores "$pid")
+            [[ -z $cores_allowed ]] && continue
+
+            if [[ "$cores_allowed" == *"$core"* ]]; then
+                exit 16
+            fi
+        done
+
+    fi
+    ((core++))
+done < /proc/stat
+
+exit 0
