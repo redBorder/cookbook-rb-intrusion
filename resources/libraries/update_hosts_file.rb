@@ -61,7 +61,7 @@ module RbIps
         implicit_services << "erchef.service.#{cdomain}"
         implicit_services << "s3.service.#{cdomain}"
       end
-      
+
       # Services not contained in node information
       other_services = if cdomain
                          %w[data http2k].map { |s| "#{s}.#{cdomain}" }
