@@ -1,5 +1,5 @@
 <%####################################################################### %>
-<%# Copyright (c) 2014 ENEO Tecnología S.L. %>
+<%# Copyright (c) 2025 ENEO Tecnología S.L. %>
 <%# This file is part of redBorder. %>
 <%# redBorder is free software: you can redistribute it and/or modify %>
 <%# it under the terms of the GNU Affero General Public License License as published by %>
@@ -15,66 +15,19 @@
 #!/bin/bash
 
 DEBUG=0
+WATCHDOG_NAME="watchdog_020-check-snort3"
+SNORT3_DIR="/etc/snort"
 
-v_snort_segments=""
-v_snort_all_interfaces=1
-
-global_ret=0
-
-if [ $DEBUG -eq 1 ]; then	
-    set -x 
-    exec 2>&1 
-fi
-
-if [ -f /etc/rb_sysconf.conf ]; then
-    source /etc/rb_sysconf.conf
-else
-    exit 0
-fi
+[ $DEBUG -eq 1 ] && set -x && exec 2>&1
 
 f_log() {
-    logger -t "watchdog_020-check-snort" "$1"
+    logger -t "$WATCHDOG_NAME" "$1"
 }
 
-f_cmd() {
-    eval "$@" | while read line; do
-        f_log "$line"
-    done
-}
-
-f_get_config_value() {
-    local config_file=$1
+f_get_env_value() {
+    local file=$1
     local key=$2
-    local value=""
-    if [ -f ${config_file} ]; then
-        value=$(cat ${config_file} ${config_file}_local 2>/dev/null | grep "^${key}=" | tail -n 1 | awk -F = '{print $2}' | sed 's/"//g')
-    fi
-
-    echo "${value}"
-}
-
-f_get_pid_value() {
-
-    local pid=$1
-    local key=$2
-    local value=""
-    if [ -e /proc/${pid}/environ ]; then
-        value=$(cat /proc/${pid}/environ 2>/dev/null | tr '\0' '\n' | grep "^${key}=" | sed 's/^[^=]*=\(.*\)$/\1/' | sed 's/"//g')
-    fi
-
-    echo "${value}"
-}
-
-f_segment_is_in_bypass() {
-    local segment=$1
-    ret=1
-    /usr/lib/redborder/bin/rb_bypass.sh -b ${segment} -g | grep -qi "The interface is in the Bypass mode"
-    if [ $? -eq 0 ]; then
-        ret=0
-    else
-        ret=1
-    fi
-	return $ret
+    grep -E "^${key}=" "$file" | cut -d= -f2 | tr -d '"'
 }
 
 f_set_bypass_segment() {
@@ -90,107 +43,81 @@ f_set_bypass_segment() {
     #################################
     ifbr=$1
     bpbr_mode="on"
-    br_mode="up"
 
     echo "${ifbr}" | egrep -q "^bpbr[0-9]*$"
     if [ $? -eq 0 ]; then
-        # interface type bypass bridge
-        /usr/lib/redborder/bin/rb_bypass.sh -b ${ifbr} -s on &>/dev/null
+        /usr/lib/redborder/bin/rb_bypass.sh -b ${ifbr} -s ${bpbr_mode} &>/dev/null
     fi
-    ip l set ${br_mode} ${ifbr}
 }
 
+f_iface_to_segment() {
+    local iface=$1
+    ip link show "$iface" 2>/dev/null | grep -oP 'master \K\S+'
+}
 
-f_check_snort() {
+f_check_snort3() {
     local ret=0
-    local ss NUMINSTANCES NUMPIDS
-
-    if [ -f /var/lock/snort.lck ]; then
-        # watchdog must be patient
-        ret=0
-    else
-        /etc/init.d/snortd status &>/dev/null
-        if [ $? -eq 3 ]; then
-            # service snortd stopped successfully
-            ret=0
-        else
-            NUMINSTANCES=0
-            # loop over snort configs and check number of instances
-            for ss in $(ls /etc/sysconfig/snort-[0-9]* 2>/dev/null| grep -v local$); do
-                CPU_LIST=$(f_get_config_value ${ss} 'CPU_LIST')
-                NUMINSTANCES=$((${NUMINSTANCES}+$(echo ${CPU_LIST} | tr ',' '\n' | wc -l)))
-            done
-            NUMPIDS=0
-            for ss in $(pidof snort); do
-                strings /proc/$ss/environ |grep -q CPU_LIST
-                [ $? -eq 0 ] && NUMPIDS=$(( $NUMPIDS + 1 ))
-            done
-            if [ "x${NUMPIDS}" != "x${NUMINSTANCES}" ]; then
-                ret=100
-            else
-                ret=0
-            fi
+    for envfile in "$SNORT3_DIR"/*/env; do
+        [ -f "$envfile" ] || continue
+        local instance
+        instance=$(basename "$(dirname "$envfile")")
+        if ! systemctl is-active --quiet "snort3@$instance"; then
+            f_log "Snort3 instance $instance is NOT active"
+            ret=100
         fi
-    fi
+    done
     return $ret
 }
 
-f_test() {
-    f_check_snort
-}
-
-f_restore() {
+f_restore_snort3() {
     local code=$1
-    local ret=0
-    local -A h_conf
-    local -A h_proc
-    if [ "x${code}" == "x100" ]; then
-        # some snort or process or all are down!
-        # we need to check if there are orphan instances groups
-        for ss in $(ls /etc/sysconfig/snort-[0-9]* 2>/dev/null| grep -v local$); do
-            CPU_LIST=$(f_get_config_value ${ss} 'CPU_LIST')
-            NUMINSTANCES=$(echo ${CPU_LIST} | tr ',' '\n' | wc -l)
-            INSTANCES_GROUP=$(f_get_config_value ${ss} 'INSTANCES_GROUP')
-            h_conf[${INSTANCES_GROUP}]=$NUMINSTANCES
-            # initialize h_proc
-            h_proc[${INSTANCES_GROUP}]=0
-        done
-        for ss in $(pidof snort); do
-            INSTANCES_GROUP=$(f_get_pid_value ${ss} 'INSTANCES_GROUP')
-            # there is at least one snort process for this instances group
-            h_proc[${INSTANCES_GROUP}]=1
-        done
-        # loop over instances groups and check some snort process
-        for instances_group in ${!h_conf[@]}; do
-            if [ ${h_proc[${instances_group}]} -eq 0 ]; then
-                # this instances group is orphan ... need to set on bypass over its segments
-                INSTANCES_GROUP_NAME=$(f_get_config_value /etc/sysconfig/snort-${instances_group} 'INSTANCES_GROUP_NAME')
-                INTERFACES=$(f_get_config_value /etc/sysconfig/snort-${instances_group} 'INTERFACES')
-                f_log "The instances group ${INSTANCES_GROUP_NAME} is orphan, need to set bypass on over its segments ${INTERFACES}"
-                for segment in $(echo ${INTERFACES} | tr ',' ' '); do
-                    f_log "${segment}: set bypass on"
-                    f_set_bypass_segment ${segment}
-                done
-            fi
-        done
-        echo "service snortd start" | at now
-    else
-        # NOP for now
-        :
-    fi
-    return $ret
+    [ "$code" -ne 100 ] && return 0
+
+    for envfile in "$SNORT3_DIR"/*/env; do
+        [ -f "$envfile" ] || continue
+        local instance
+        instance=$(basename "$(dirname "$envfile")")
+
+        if ! systemctl is-active --quiet "snort3@$instance"; then
+            local IFACE
+            IFACE=$(f_get_env_value "$envfile" "IFACE")
+
+            f_log "Restoring snort3@$instance: enabling bypass on interfaces: $IFACE"
+
+            local segments=""
+            for iface in $(echo "$IFACE" | tr ':' ' '); do
+                local seg
+                seg=$(f_iface_to_segment "$iface")
+                if [ -n "$seg" ]; then
+                    f_log "$iface belongs to segment $seg"
+                    segments="$segments $seg"
+                else
+                    f_log "WARNING: Could not find segment for interface $iface"
+                fi
+            done
+
+            segments=$(echo "$segments" | tr ' ' '\n' | sort -u | tr '\n' ' ')
+
+            for seg in $segments; do
+                f_log "Enabling bypass on segment $seg"
+                f_set_bypass_segment "$seg"
+            done
+
+            f_log "Restarting snort3@$instance"
+            systemctl restart "snort3@$instance"
+        fi
+    done
+    return 0
 }
 
-# Get options
-if [ "x$1" == "xtest" -o "x$1" == "x" ]; then
-    f_test
+global_ret=0
+
+if [[ "$1" == "test" || -z "$1" ]]; then
+    f_check_snort3
     global_ret=$?
 else
-    f_restore $2
+    f_restore_snort3 "$2"
     global_ret=0
 fi
 
 exit $global_ret
-
-## vim:ts=4:sw=4:expandtab:ai:nowrap:formatoptions=croqln:
-
