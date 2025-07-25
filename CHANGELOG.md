@@ -1,6 +1,15 @@
 cookbook-rb-intrusion CHANGELOG
 ===============
 
+## 1.3.0
+
+  - Miguel Álvarez
+    - [af7670e] Update watchdog_020-check-snort.sh.erb
+    - [7420e55] Update motd.erb
+    - [d9d6245] Add cpu watchdog
+    - [1ebd440] Add cpu check
+    - [59e01d4] Add watchdog for snort3
+
 ## 1.2.7
 
   - nilsver
