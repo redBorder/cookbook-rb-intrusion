@@ -1,6 +1,11 @@
 cookbook-rb-intrusion CHANGELOG
 ===============
 
+## 1.3.1
+
+  - jnavarrorb
+    - [cac6fcd] Remove executable permissions on non-executable files
+
 ## 1.3.0
 
   - Miguel Álvarez
