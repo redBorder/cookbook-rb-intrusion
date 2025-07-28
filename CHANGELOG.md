@@ -1,6 +1,11 @@
 cookbook-rb-intrusion CHANGELOG
 ===============
 
+## 1.3.2
+
+  - jnavarrorb
+    - [cc0e4fc] Remove cookbook-cron from depends
+
 ## 1.3.1
 
   - jnavarrorb
