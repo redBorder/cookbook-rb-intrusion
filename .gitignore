@@ -9,4 +9,4 @@ bin/*
 .kitchen.local.yml
 
 pkgs
-SOURCES
+packaging/rpm/SOURCES/*
