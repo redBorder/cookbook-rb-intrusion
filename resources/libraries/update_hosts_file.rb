@@ -111,12 +111,8 @@ module RbIps
         return {} if resolved_ip.nil?
         node.normal['redborder']['resolve_host'] = resolved_ip
       end
+      manager_registration_ip = node.dig('redborder', 'resolve_host')
 
-      # This is updated on cluster settings change
-      manager_registration_ip = node.dig('redborder', 'cluster_link_ip')
-      manager_registration_ip ||= node.dig('redborder', 'resolve_host')
-      # This is managed by ohai and represents the first registered IP
-      manager_registration_ip ||= node.dig('redborder', 'manager_registration_ip')
       return {} unless manager_registration_ip
 
       cdomain = node.dig('redborder', 'cdomain')
