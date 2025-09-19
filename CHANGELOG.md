@@ -1,6 +1,25 @@
 cookbook-rb-intrusion CHANGELOG
 ===============
 
+## 1.3.2
+
+  - jnavarrorb
+    - [cc0e4fc] Remove cookbook-cron from depends
+
+## 1.3.1
+
+  - jnavarrorb
+    - [cac6fcd] Remove executable permissions on non-executable files
+
+## 1.3.0
+
+  - Miguel Álvarez
+    - [af7670e] Update watchdog_020-check-snort.sh.erb
+    - [7420e55] Update motd.erb
+    - [d9d6245] Add cpu watchdog
+    - [1ebd440] Add cpu check
+    - [59e01d4] Add watchdog for snort3
+
 ## 1.2.7
 
   - nilsver
