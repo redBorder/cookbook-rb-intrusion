@@ -64,7 +64,7 @@ module RbIps
 
       # Services not contained in node information
       other_services = if cdomain
-                         ['data', 'http2k'].map { |s| "#{s}.#{cdomain}" }
+                         %w(data http2k).map { |s| "#{s}.#{cdomain}" }
                        else
                          []
                        end
