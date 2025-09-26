@@ -2,7 +2,7 @@
 
 module RbIps
   module Helpers
-    def external_databag_services
+    def get_external_databag_services
       external_databag = Chef::DataBag.load('rBglobal').keys.grep(/^ipvirtual-external-/)
       services = external_databag.map { |bag| bag.sub('ipvirtual-external-', '') }
       services -= %w[sfacctd] # not visible for ips
@@ -22,7 +22,7 @@ module RbIps
         services = values
         hosts_hash[ip].concat(services).uniq!
       end
-      hosts_hash # IP => [services and nodes]
+      hosts_hash
     end
 
     def manager_node_names
@@ -75,7 +75,7 @@ module RbIps
     def add_virtual_ips_info(hosts_info, manager_registration_ip, cdomain)
       # Hash where services (from databag) are grouped by ip
       grouped_virtual_ips = Hash.new { |hash, key| hash[key] = [] }
-      external_databag_services.each do |bag|
+      get_external_databag_services.each do |bag|
         virtual_dg = data_bag_item('rBglobal', "ipvirtual-external-#{bag}")
         ip = virtual_dg['ip']
         ip = ip && !ip.empty? ? ip : manager_registration_ip
@@ -103,7 +103,7 @@ module RbIps
       hosts_info
     end
 
-    def gather_hosts_info
+    def update_hosts_file
       unless node.dig('redborder', 'resolve_host')
         domain_name = node.dig('redborder', 'manager_registration_ip')
         return {} if domain_name.nil?

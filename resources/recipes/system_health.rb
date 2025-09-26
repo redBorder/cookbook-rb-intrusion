@@ -11,6 +11,7 @@
 ruby_block 'update_hosts_file_if_needed' do
   block do
     extend RbIps::Helpers
+
     unless node['redborder']['cloud']
       # Read webui_host from the rb_init_conf.yml file
       webui_host_command = "grep '^webui_host:' /etc/redborder/rb_init_conf.yml | awk '{print $2}'"
@@ -26,8 +27,8 @@ ruby_block 'update_hosts_file_if_needed' do
 
         unless ::File.readlines(hosts_file).grep(/#{Regexp.escape(node_name_with_suffix)}/).any?
           ::File.open(hosts_file, 'a') { |file| file.puts "#{webui_host} #{node_name_with_suffix}" }
-        end # THE ELSE should always happen, since we are controlling the file through template /etc/hosts
-      end # else IPS was registered using Virtual IP
+        end
+      end
     end
   end
   action :run
