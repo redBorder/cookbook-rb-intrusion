@@ -27,6 +27,12 @@ ips_services = ips_services()
 # end
 
 begin
+s3_secrets = data_bag_item('passwords', 's3').to_hash
+rescue
+s3_secrets = {}
+end
+
+begin
   sensor_id = node['redborder']['sensor_id'].to_i
 rescue
   sensor_id = 0
@@ -243,6 +249,12 @@ if node['redborder']['chef_enabled'].nil? || node['redborder']['chef_enabled']
   snort3_config 'Configure Snort' do
     sensor_id sensor_id
     groups groups_in_use
+    s3_enable node['redborder']['snort']['s3']['enable']
+    s3_bucket node['redborder']['snort']['s3']['bucket']
+    s3_region node['redborder']['snort']['s3']['region']
+    s3_host s3_secrets['s3_host'] unless s3_secrets.empty?
+    s3_access_key_id s3_secrets['s3_access_key_id'] unless s3_secrets.empty?
+    s3_secret_key_id s3_secrets['s3_secret_key_id'] unless s3_secrets.empty?
     if ips_services['snortd'] && !node['redborder']['snort']['groups'].empty? && sensor_id > 0 && node['redborder']['segments'] && node['cpu'] && node['cpu']['total']
       action :add
     else
