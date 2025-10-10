@@ -68,3 +68,8 @@ default['redborder']['systemdservices']['rsyslog'] = ['rsyslog']
 default['redborder']['systemdservices']['snortd'] = ['snort3']
 default['redborder']['systemdservices']['redborder-exporter'] = ['rb-exporter']
 default['redborder']['systemdservices']['chrony'] = ['chronyd']
+
+# snort S3 filelog
+default['redborder']['snort']['s3']['enable'] = false
+default['redborder']['snort']['s3']['bucket'] = ''
+default['redborder']['snort']['s3']['region'] = 'us-east-1'
