@@ -27,9 +27,9 @@ ips_services = ips_services()
 # end
 
 begin
-s3_secrets = data_bag_item('passwords', 's3').to_hash
+  s3_secrets = data_bag_item('passwords', 's3').to_hash
 rescue
-s3_secrets = {}
+  s3_secrets = {}
 end
 
 begin
