@@ -92,17 +92,13 @@ module RbIps
         services.uniq! # Avoids having duplicate services in the list
         services.each do |service|
           # Add running services to localhost
-          if ip == '127.0.0.1'
-            next
-          elsif ip && is_mode_manager
-            hosts_info[ip] = {} unless hosts_info[ip] # Create if necessary
-            hosts_info[ip]['services'] = [] unless hosts_info[ip]['services'] # Create if necessary
-            hosts_info[ip]['services'] << "#{service}.service"
-            hosts_info[ip]['services'] << "#{service}.#{cdomain}"
-          else # default ip
-            hosts_info[manager_registration_ip]['services'] << "#{service}.service"
-            hosts_info[manager_registration_ip]['services'] << "#{service}.#{node['redborder']['cdomain']}"
-          end
+          next if ip == '127.0.0.1'
+
+          target_ip = ip && is_mode_manager ? ip : manager_registration_ip
+          hosts_info[target_ip] ||= {}
+          hosts_info[target_ip]['services'] ||= []
+          hosts_info[target_ip]['services'] << "#{service}.service"
+          hosts_info[target_ip]['services'] << "#{service}.service.#{cdomain}"
         end
       end
       hosts_info
