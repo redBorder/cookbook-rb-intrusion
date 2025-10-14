@@ -27,9 +27,28 @@ ips_services = ips_services()
 # end
 
 begin
-  s3_secrets = data_bag_item('passwords', 's3').to_hash
+  s3_secrets = data_bag_item('passwords', 's3')
 rescue
   s3_secrets = {}
+end
+
+if s3_secrets['s3_url']
+  node.override['redborder']['snort']['s3']['enable'] = true
+
+  node.override['redborder']['snort']['s3']['endpoint'] = s3_secrets['s3_url']
+  node.override['redborder']['snort']['s3']['access_key_id'] = s3_secrets['s3_access_key_id']
+  node.override['redborder']['snort']['s3']['secret_access_key'] = s3_secrets['s3_secret_key_id']
+  node.override['redborder']['snort']['s3']['bucket'] = s3_secrets['s3_bucket']
+
+  if s3_secrets['s3_url'].start_with?('https://')
+    node.override['redborder']['snort']['s3']['https_scheme'] = true
+    node.override['redborder']['snort']['s3']['verify_ssl'] = true
+  else
+    node.override['redborder']['snort']['s3']['https_scheme'] = false
+    node.override['redborder']['snort']['s3']['verify_ssl'] = false
+  end
+else
+  node.override['redborder']['snort']['s3']['enable'] = false
 end
 
 begin
