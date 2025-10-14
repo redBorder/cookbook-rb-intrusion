@@ -108,8 +108,10 @@ module RbIps
       unless node.dig('redborder', 'resolve_host')
         domain_name = node.dig('redborder', 'manager_registration_ip')
         return {} if domain_name.nil?
+
         resolved_ip = manager_to_ip(domain_name)
         return {} if resolved_ip.nil?
+
         node.normal['redborder']['resolve_host'] = resolved_ip
       end
       manager_registration_ip = node.dig('redborder', 'resolve_host')
