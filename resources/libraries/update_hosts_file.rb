@@ -11,7 +11,7 @@ module RbIps
       # services
 
       # ... so we hardcode the list of services for now
-      %w[f2k kafka webui]
+      %w(f2k kafka webui)
     end
 
     # Is weird to read the file to update it, just because we want not to remove unmanaged system configuration
