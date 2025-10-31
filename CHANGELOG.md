@@ -1,6 +1,11 @@
 cookbook-rb-intrusion CHANGELOG
 ===============
 
+## 1.3.3
+
+  - ljblancoredborder
+    - [2b469f8] template /etc/hosts
+
 ## 1.3.2
 
   - jnavarrorb
