@@ -4,28 +4,34 @@ module RbIps
   module Helpers
     require 'resolv'
 
-    def external_databag_services
-      # This function turned too complex ...
-      external_databag = Chef::DataBag.load('rBglobal').keys.grep(/^ipvirtual-external-/)
-      services = external_databag.map { |bag| bag.sub('ipvirtual-external-', '') }
-      services -= %w(sfacctd) # Excluded for IPS
-      services
+    def fetch_vip_databags
+      databags = []
+      begin
+        databags = Chef::DataBag
+          .load('rBglobal')
+          .keys
+          .select { |s| s.include?('ipvirtual-external-') && s.include?('sfacctd') }
+      rescue e
+        puts 'WARNING: No databags found in update hosts.'
+      end
+      databags
     end
 
     def grouped_virtual_ips(manager_registration_ip)
-      # Hash where services (from databag) are grouped by ip
       grouped_virtual_ips = Hash.new { |ip, services| ip[services] = [] }
-      # Only those visible for IPS. Manager will recognize these services as nginx
-      # But erchef and s3 are necessary to access VIPs, so moved to implicit
-      nginx_services = %w(http2k webui)
 
-      external_databag_services.each do |bag|
-        data = data_bag_item('rBglobal', "ipvirtual-external-#{bag}")
+      vip_databags = fetch_vip_databags
+      vip_databags.each do |bag|
+        data = data_bag_item('rBglobal', bag)
         ip = data['ip'] || manager_registration_ip
-        service_name = bag.delete_prefix('ipvirtual-external-')
+        services =
+          if bag == 'ipvirtual-external-nginx'
+            %w(http2k webui) # Services redirected by nginx
+          else
+            [bag.delete_prefix('ipvirtual-external-')]
+          end
 
-        services = service_name == 'nginx' ? nginx_services : [service_name]
-        grouped_virtual_ips[ip] |= services
+        grouped_virtual_ips[ip] = services
       end
       grouped_virtual_ips
     end
