@@ -18,7 +18,7 @@ module RbIps
     end
 
     def grouped_virtual_ips(manager_registration_ip)
-      grouped_virtual_ips = Hash.new { |ip, services| ip[services] = [] }
+      ip_services = Hash.new { |ip, services| ip[services] = [] }
 
       vip_databags = fetch_vip_databags
       vip_databags.each do |bag|
@@ -31,9 +31,9 @@ module RbIps
             [bag.delete_prefix('ipvirtual-external-')]
           end
 
-        grouped_virtual_ips[ip] = services
+        ip_services[ip] = services
       end
-      grouped_virtual_ips
+      ip_services
     end
 
     # def read_hosts_file
@@ -49,9 +49,8 @@ module RbIps
     # end
 
     def manager_node_names
-      query = Chef::Search::Query.new
       nodes = []
-      query.search(:node, 'is_manager:true') do |node|
+      Chef::Search::Query.new.search(:node, 'is_manager:true') do |node|
         nodes << "#{node.name}.node"
       end
       nodes
