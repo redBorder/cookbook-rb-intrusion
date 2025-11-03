@@ -8,8 +8,6 @@ License: AGPL 3.0
 URL: https://github.com/redBorder/cookbook-example
 Source0: %{name}-%{version}.tar.gz
 
-Requires: bind-utils
-
 %description
 %{summary}
 
@@ -49,5 +47,3 @@ esac
 %doc
 
 %changelog
-* Fri Oct 31 2025 Luis Blanco <ljblanco@redborder.com>
-- Add bind-utils dependency since we use dig for domain resolution
