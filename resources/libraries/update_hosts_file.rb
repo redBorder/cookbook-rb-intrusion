@@ -29,7 +29,7 @@ module RbIps
             [bag.delete_prefix('ipvirtual-external-')]
           end
 
-        ip_services[ip] = services
+        ip_services[ip] += services
       end
       ip_services
     end
