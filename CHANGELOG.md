@@ -1,6 +1,11 @@
 cookbook-rb-intrusion CHANGELOG
 ===============
 
+## 1.3.4
+
+  - nilsver
+    - [45d6da8] move databag ssh to rBglobal
+
 ## 1.3.3
 
   - ljblancoredborder
