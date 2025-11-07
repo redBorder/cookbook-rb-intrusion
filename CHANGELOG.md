@@ -1,6 +1,11 @@
 cookbook-rb-intrusion CHANGELOG
 ===============
 
+## 1.3.5
+
+  - nilsver
+    - [c8cb10a] revert changes
+
 ## 1.3.4
 
   - nilsver
