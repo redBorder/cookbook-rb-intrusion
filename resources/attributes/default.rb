@@ -36,7 +36,6 @@ default['redborder']['snort']['output'] = {}
 
 # default['redborder']['enable_remote_repo'] = false
 
-
 # Syslog
 default['redborder']['rsyslog']['mode'] = 'extended'
 
