@@ -34,21 +34,14 @@ end
 
 if s3_secrets['s3_url']
   node.override['redborder']['snort']['s3']['enable'] = true
-
-  node.override['redborder']['snort']['s3']['endpoint'] = s3_secrets['s3_url']
+  node.override['redborder']['snort']['s3']['endpoint'] = URI.parse(s3_secrets['s3_url']).host
   node.override['redborder']['snort']['s3']['access_key_id'] = s3_secrets['s3_access_key_id']
-  node.override['redborder']['snort']['s3']['secret_access_key'] = s3_secrets['s3_secret_key_id']
+  node.override['redborder']['snort']['s3']['secret_key_id'] = s3_secrets['s3_secret_key_id']
   node.override['redborder']['snort']['s3']['bucket'] = s3_secrets['s3_bucket']
-
-  if s3_secrets['s3_url'].start_with?('https://')
-    node.override['redborder']['snort']['s3']['https_scheme'] = true
-    node.override['redborder']['snort']['s3']['verify_ssl'] = true
-  else
-    node.override['redborder']['snort']['s3']['https_scheme'] = false
-    node.override['redborder']['snort']['s3']['verify_ssl'] = false
-  end
-else
-  node.override['redborder']['snort']['s3']['enable'] = false
+  node.override['redborder']['snort']['s3']['region'] = s3_secrets['s3_region'] || 'us-east-1'
+  node.override['redborder']['snort']['s3']['use_real_name'] = true
+  node.override['redborder']['snort']['s3']['verify_ssl'] = false
+  node.override['redborder']['snort']['s3']['https_scheme'] = false
 end
 
 begin
@@ -268,12 +261,22 @@ if node['redborder']['chef_enabled'].nil? || node['redborder']['chef_enabled']
   snort3_config 'Configure Snort' do
     sensor_id sensor_id
     groups groups_in_use
-    s3_enable node['redborder']['snort']['s3']['enable']
-    s3_bucket node['redborder']['snort']['s3']['bucket']
-    s3_region node['redborder']['snort']['s3']['region']
-    s3_host s3_secrets['s3_host'] unless s3_secrets.empty?
-    s3_access_key_id s3_secrets['s3_access_key_id'] unless s3_secrets.empty?
-    s3_secret_key_id s3_secrets['s3_secret_key_id'] unless s3_secrets.empty?
+    enable_s3 node['redborder']['snort']['s3']['enable']
+    s3_bucket s3_secrets['s3_bucket']
+    s3_region s3_secrets['s3_region'] || 'us-east-1'
+    s3_endpoint URI.parse(s3_secrets['s3_url']).host
+    s3_access_key_id s3_secrets['s3_access_key_id']
+    s3_secret_key_id s3_secrets['s3_secret_key_id']
+    s3_https_scheme node['redborder']['snort']['s3']['https_scheme']
+    s3_verify_ssl node['redborder']['snort']['s3']['verify_ssl']
+    s3_use_real_name node['redborder']['snort']['s3']['use_real_name']
+    rules_file 'file_magic.rules'
+    capture_memcap 2048
+    capture_max_size 52428800
+    capture_min_size 1
+    capture_block_size 32768
+    max_files_cached 65536
+    show_data_depth 1024
     if ips_services['snortd'] && !node['redborder']['snort']['groups'].empty? && sensor_id > 0 && node['redborder']['segments'] && node['cpu'] && node['cpu']['total']
       action :add
     else
