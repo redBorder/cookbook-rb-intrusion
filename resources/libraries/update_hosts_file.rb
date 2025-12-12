@@ -24,7 +24,7 @@ module RbIps
         return if domain_name.nil?
         resolved_ip = manager_to_ip(domain_name)
         return if resolved_ip.nil?
-        node.default['redborder']['resolve_host'] = resolved_ip
+        node.normal['redborder']['resolve_host'] = resolved_ip
       end
       manager_registration_ip = node.dig('redborder', 'resolve_host')
 

@@ -62,7 +62,7 @@ rb_selinux_config 'Configure Selinux' do
   end
 end
 
-node.override['redborder']['chef_client_interval'] = 300
+node.normal['redborder']['chef_client_interval'] = 300
 
 directory '/etc/snortpcaps' do
   owner 'root'
@@ -412,7 +412,7 @@ if node['redborder']['ipsrules'] && node['redborder']['cloud']
 
     ruby_block "update_rule_timestamp_#{groupid}" do
       block do
-        node.override['redborder']['ipsrules'][groupid]['timestamp_last'] = node['redborder']['ipsrules'][groupid]['timestamp']
+        node.normal['redborder']['ipsrules'][groupid]['timestamp_last'] = node['redborder']['ipsrules'][groupid]['timestamp']
       end
       action :nothing
     end
@@ -563,9 +563,11 @@ end
 # end
 
 if File.exist?('/etc/init.d/rb-lcd')
-  service 'rb-lcd' do
-    supports status: true, restart: true, reload: true
-    action [:start]
-    only_if { !Dir.glob('/dev/ttyUSB*').empty? }
-  end
+  execute 'rb-lcd' do
+    lcd = !Dir.glob('/dev/ttyUSB*').empty?
+    only_if "#{lcd}"
+    command '/bin/env WAIT=1 /etc/init.d/rb-lcd start'
+    ignore_failure true
+    action :nothing
+  end.run_action(:run)
 end
