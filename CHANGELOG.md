@@ -1,6 +1,11 @@
 cookbook-rb-intrusion CHANGELOG
 ===============
 
+## 1.3.6
+
+  - nilsver
+    - [abc5c15] move databag to rBglobal
+
 ## 1.3.5
 
   - nilsver
