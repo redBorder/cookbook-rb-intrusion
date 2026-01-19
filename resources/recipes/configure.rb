@@ -77,7 +77,6 @@ if sensor_id > 0
 end
 
 hosts_entries = update_hosts_file()
-
 template '/etc/hosts' do
   source 'hosts.erb'
   cookbook 'rb-intrusion'
