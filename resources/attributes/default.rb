@@ -32,6 +32,7 @@ default['chef-client']['options'] = ''
 # Snort
 default['redborder']['snort']['service'] = 'snortd'
 default['redborder']['snort']['groups']  = {}
+default['redborder']['snort']['output'] = {}
 
 # default['redborder']['enable_remote_repo'] = false
 
