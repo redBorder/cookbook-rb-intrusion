@@ -1,6 +1,11 @@
 cookbook-rb-intrusion CHANGELOG
 ===============
 
+## 1.3.7
+
+  - Miguel Negrón
+    - [c5fb749] We dont need to get the namespaces in intrusion (#44)
+
 ## 1.3.6
 
   - nilsver
