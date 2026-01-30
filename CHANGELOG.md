@@ -1,6 +1,16 @@
 cookbook-rb-intrusion CHANGELOG
 ===============
 
+## 1.3.8
+
+  - manegron
+    - [a723cd4] Add rescue on load role
+    - [c5fb749] We dont need to get the namespaces in intrusion (#44)
+  - David Vanhoucke
+    - [ee08658] bump version
+  - Miguel Negrón
+    - [c5fb749] We dont need to get the namespaces in intrusion (#44)
+
 ## 1.3.7
 
   - Miguel Negrón
