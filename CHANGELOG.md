@@ -1,6 +1,11 @@
 cookbook-rb-intrusion CHANGELOG
 ===============
 
+## 1.3.9
+
+  - manegron
+    - [060bde1] Add rescue
+
 ## 1.3.8
 
   - manegron
