@@ -1,6 +1,11 @@
 cookbook-rb-intrusion CHANGELOG
 ===============
 
+## 1.3.10
+
+  - manegron
+    - [d178721] Bump version
+
 ## 1.3.9
 
   - manegron
