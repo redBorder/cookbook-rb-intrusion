@@ -7,7 +7,7 @@ module RbIps
       begin
         databags = Chef::DataBag.load('rBglobal').keys.select { |s| s.include?('ipvirtual-external-') && !s.include?('sfacctd') }
       rescue e
-        Chef::Log.warn 'No databags found in update hosts.'
+        Chef::Log.warn("[fetch_vip_databags] No databags found in update hosts.")
       end
       databags
     end
