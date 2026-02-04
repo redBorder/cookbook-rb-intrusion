@@ -36,10 +36,11 @@ module RbIps
 
     # Searches for all manager nodes
     # Returns a hash of each manager's IP address to an array of its corresponding node name
-    def fetch_node_names
+    def fetch_manager_nodes
       nodes = Hash.new { |h, k| h[k] = [] }
-      Chef::Search::Query.new.search(:node, 'is_manager:true') do |node|
-        nodes[node['ipaddress']] << "#{node.name}.node"
+      query_filter = { 'ip' => ['ipaddress'], 'name' => ['name'] }
+      search(:node, 'is_manager:true', filter_result: query_filter) do |result|
+        nodes[result['ip']] << "#{result['name']}.node"
       end
       nodes
     end
