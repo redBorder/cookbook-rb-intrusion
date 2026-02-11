@@ -1,6 +1,12 @@
 cookbook-rb-intrusion CHANGELOG
 ===============
 
+## 1.3.11
+
+  - nverschaeve
+    - [5bb1059] optimize search
+    - [b4b5d16] map node names to their ip
+
 ## 1.3.10
 
   - manegron
