@@ -9,8 +9,7 @@ module RbIps
 
       node['redborder']['memory_services'].each do |name, mem_s|
         if node['redborder']['services'][name] &&
-           !excluded_services.include?(name) &&
-           !node['redborder']['excluded_memory_services'].include?(name)
+           !excluded_services.include?(name)
           memory_services_size += mem_s['count']
         end
 
@@ -22,9 +21,7 @@ module RbIps
       end
 
       node['redborder']['memory_services'].each do |name, mem_s|
-        next unless node['redborder']['services'][name] && !excluded_services.include?(name)
-
-        next unless !node['redborder']['excluded_memory_services'].include?(name)
+        next unless node['redborder']['services'][name]
 
         # service count memory assigned * system memory / assigned services memory size
         memory_serv[name] = (mem_s['count'] * sysmem_total / memory_services_size).round
