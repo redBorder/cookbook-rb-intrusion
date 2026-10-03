@@ -1,6 +1,11 @@
 cookbook-rb-intrusion CHANGELOG
 ===============
 
+## 1.3.12
+
+  - manegron
+    - [f175474] Upload cookbook only if opscode-erchef is active
+
 ## 1.3.11
 
   - nverschaeve
