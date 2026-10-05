@@ -45,7 +45,7 @@ default['redborder']['ipsrules'] = {}
 default['redborder']['memory_services'] = {}
 default['redborder']['memory_services']['chef-client'] = { 'count': 10, 'memory': 0 }
 default['redborder']['memory_services']['snmp'] = { 'count': 5, 'memory': 0, 'max_limit': 10000 }
-default['redborder']['memory_services']['redborder-monitor'] = { 'count': 5, 'memory': 0, 'max_limit': 20000 }
+default['redborder']['memory_services']['redborder-monitor'] = { 'count': 5, 'memory': 0, 'max_limit': 500000 }
 # default['redborder']['memory_services']['snortd'] = { 'count': 10, 'memory': 0 }
 
 # exclude mem services, setting memory to 0 for each.
