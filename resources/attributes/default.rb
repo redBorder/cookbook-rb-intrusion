@@ -57,7 +57,8 @@ default['redborder']['services']['redborder-monitor'] = true
 default['redborder']['services']['snmp'] = true
 default['redborder']['services']['rsyslog'] = true
 default['redborder']['services']['snortd'] = true
-default['redborder']['services']['clamav'] = true
+default['redborder']['services']['clamav'] = false
+default['redborder']['services']['clamav-freshclam'] = false
 default['redborder']['services']['chrony'] = true
 default['redborder']['services']['redborder-exporter'] = true
 
@@ -66,5 +67,7 @@ default['redborder']['systemdservices']['redborder-monitor'] = ['redborder-monit
 default['redborder']['systemdservices']['snmp'] = ['snmpd']
 default['redborder']['systemdservices']['rsyslog'] = ['rsyslog']
 default['redborder']['systemdservices']['snortd'] = ['snort3']
+default['redborder']['systemdservices']['clamav'] = ['clamd@scan']
+default['redborder']['systemdservices']['clamav-freshclam'] = ['clamav-freshclam']
 default['redborder']['systemdservices']['redborder-exporter'] = ['rb-exporter']
 default['redborder']['systemdservices']['chrony'] = ['chronyd']
