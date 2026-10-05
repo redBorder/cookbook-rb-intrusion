@@ -1,6 +1,14 @@
 cookbook-rb-intrusion CHANGELOG
 ===============
 
+## 1.3.14
+
+  - Miguel Negrón
+    - [ff8860c] Merge pull request #52 from redBorder/improvement/#26794_disable_clamd_by_defaul
+  - manegron
+    - [ff8860c] Merge pull request #52 from redBorder/improvement/#26794_disable_clamd_by_defaul
+    - [b72a7a0] Disable clamav by default
+
 ## 1.3.13
 
   - manegron
