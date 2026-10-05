@@ -1,6 +1,11 @@
 cookbook-rb-intrusion CHANGELOG
 ===============
 
+## 1.3.13
+
+  - manegron
+    - [2fc353d] Increase max limit mem for redborder-monitor
+
 ## 1.3.12
 
   - manegron
