@@ -1,6 +1,14 @@
 cookbook-rb-intrusion CHANGELOG
 ===============
 
+## 1.4.0
+
+  - Miguel Negrón
+    - [cef54ed] Merge pull request #53 from redBorder/improvement/#26867_reduce_chef_server_queries
+  - manegron
+    - [cef54ed] Merge pull request #53 from redBorder/improvement/#26867_reduce_chef_server_queries
+    - [9ee8590] Reduce chef server queries
+
 ## 1.3.14
 
   - Miguel Negrón
