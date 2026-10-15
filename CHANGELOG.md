@@ -1,6 +1,15 @@
 cookbook-rb-intrusion CHANGELOG
 ===============
 
+## 2.0.0
+
+  - Miguel Negrón
+    - [e57b2ff] Merge pull request #54 from redBorder/improvement/#26884_remove_ruby_2_7_5
+  - manegron
+    - [e57b2ff] Merge pull request #54 from redBorder/improvement/#26884_remove_ruby_2_7_5
+    - [27038e7] Merge branch 'development' into improvement/#26884_remove_ruby_2_7_5
+    - [c935da2] Remove ruby-2.7.5
+
 ## 1.4.0
 
   - Miguel Negrón
