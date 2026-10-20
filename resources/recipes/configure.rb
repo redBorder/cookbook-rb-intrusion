@@ -368,7 +368,7 @@ if node['redborder']['ipsrules'] && node['redborder']['cloud']
     end
 
     execute "download_rules_#{groupid}" do
-      command "/usr/lib/rvm/bin/rvm ruby-2.7.5@global do /usr/lib/redborder/scripts/rb_get_sensor_rules_cloud.rb -c '#{command}' -u #{node['redborder']['ipsrules'][groupid]['uuid'].to_s}"
+      command "/usr/lib/rvm/bin/rvm ruby-3.4.11@global do /usr/lib/redborder/scripts/rb_get_sensor_rules_cloud.rb -c '#{command}' -u #{node['redborder']['ipsrules'][groupid]['uuid'].to_s}"
       ignore_failure true
       live_stream true
       action :run
