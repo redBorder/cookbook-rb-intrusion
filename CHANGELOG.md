@@ -1,6 +1,11 @@
 cookbook-rb-intrusion CHANGELOG
 ===============
 
+## 2.0.1
+
+  - Jose Jimenez
+    - [ff0eb01] Add http_endpoint & trap_sink variable (#56)
+
 ## 2.0.0
 
   - Miguel Negrón
