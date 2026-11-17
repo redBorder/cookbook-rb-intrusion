@@ -1,6 +1,13 @@
 cookbook-rb-intrusion CHANGELOG
 ===============
 
+## 2.1.0
+
+  - nilsver
+    - [2dabd57] Replace rb-exporter with rb-flow-agent
+    - [c9537eb] Require cookbook-rb-flow-agent
+    - [2ee882f] remove require
+
 ## 2.0.1
 
   - Jose Jimenez
