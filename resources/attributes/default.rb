@@ -46,6 +46,7 @@ default['redborder']['memory_services'] = {}
 default['redborder']['memory_services']['chef-client'] = { 'count': 10, 'memory': 0 }
 default['redborder']['memory_services']['snmp'] = { 'count': 5, 'memory': 0, 'max_limit': 10000 }
 default['redborder']['memory_services']['redborder-monitor'] = { 'count': 5, 'memory': 0, 'max_limit': 500000 }
+default['redborder']['memory_services']['redborder-satellite'] = { 'count': 10, 'memory': 0 }
 # default['redborder']['memory_services']['snortd'] = { 'count': 10, 'memory': 0 }
 
 # exclude mem services, setting memory to 0 for each.
@@ -61,6 +62,7 @@ default['redborder']['services']['clamav'] = false
 default['redborder']['services']['clamav-freshclam'] = false
 default['redborder']['services']['chrony'] = true
 default['redborder']['services']['redborder-flow-agent'] = true
+default['redborder']['services']['redborder-satellite'] = true
 
 default['redborder']['systemdservices']['chef-client'] = ['chef-client']
 default['redborder']['systemdservices']['redborder-monitor'] = ['redborder-monitor']
@@ -71,3 +73,4 @@ default['redborder']['systemdservices']['clamav'] = ['clamd@scan']
 default['redborder']['systemdservices']['clamav-freshclam'] = ['clamav-freshclam']
 default['redborder']['systemdservices']['redborder-flow-agent'] = ['redborder-flow-agent']
 default['redborder']['systemdservices']['chrony'] = ['chronyd']
+default['redborder']['systemdservices']['redborder-satellite'] = ['redborder-satellite']
