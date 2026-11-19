@@ -236,10 +236,11 @@ end
 
 # Registration token of the hub cluster, only used to enrol the satellite key.
 # It lives in rBglobal because sensors cannot read the passwords data bag.
-hub_registration = begin
-  data_bag_item('rBglobal', 'hub').to_hash
+hub_registration = {}
+begin
+  hub_registration = data_bag_item('rBglobal', 'hub').to_hash
 rescue
-  {}
+  hub_registration = {}
 end
 
 rbsat_config 'Configure redborder-satellite' do
