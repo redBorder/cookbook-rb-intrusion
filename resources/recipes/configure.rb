@@ -234,6 +234,24 @@ rb_flow_agent_config 'Configure rb-flow-agent' do
   end
 end
 
+# Registration token of the hub cluster, only used to enrol the satellite key.
+# It lives in rBglobal because sensors cannot read the passwords data bag.
+hub_registration = {}
+begin
+  hub_registration = data_bag_item('rBglobal', 'hub').to_hash
+rescue
+  hub_registration = {}
+end
+
+rbsat_config 'Configure redborder-satellite' do
+  auth_token hub_registration['registration_token'].to_s
+  if ips_services['redborder-satellite']
+    action :add
+  else
+    action :remove
+  end
+end
+
 # rsyslog_config "Configure rsyslog" do
 #   vault_nodes node.run_state["sensors_info_all"]["vault-sensor"]
 #   action (ips_services["rsyslog"] ? [:add] : [:remove])
