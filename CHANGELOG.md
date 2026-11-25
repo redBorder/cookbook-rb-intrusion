@@ -1,6 +1,14 @@
 cookbook-rb-intrusion CHANGELOG
 ===============
 
+## 4.0.0
+
+  - Miguel Negrón
+    - [ac64818] Merge pull request #61 from redBorder/improvement/#27292_migrate_to_cinc
+  - manegron
+    - [ac64818] Merge pull request #61 from redBorder/improvement/#27292_migrate_to_cinc
+    - [3d77276] Migrate to cinc
+
 ## 3.0.0
 
   - Miguel Negrón
