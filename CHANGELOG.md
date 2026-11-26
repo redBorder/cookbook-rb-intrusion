@@ -1,6 +1,23 @@
 cookbook-rb-intrusion CHANGELOG
 ===============
 
+## 4.0.0
+
+  - Miguel Negrón
+    - [ac64818] Merge pull request #61 from redBorder/improvement/#27292_migrate_to_cinc
+  - manegron
+    - [ac64818] Merge pull request #61 from redBorder/improvement/#27292_migrate_to_cinc
+    - [3d77276] Migrate to cinc
+
+## 3.0.0
+
+  - Miguel Negrón
+    - [3deee46] Merge pull request #60 from redBorder/Feature/#49_implement_redborder_satellite
+  - Juan Soto
+    - [3717614] Fix rescue alignment in hub registration lookup
+    - [6b6b148] Keep cookbook version at 2.1.0
+    - [532390e] Add redborder-satellite configuration
+
 ## 2.1.0
 
   - nilsver
